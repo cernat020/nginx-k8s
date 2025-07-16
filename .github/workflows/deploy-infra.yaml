@@ -1,0 +1,30 @@
+name: Deploy Infrastructure (Main)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Kubernetes
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: echo "${KUBECONFIG}" > $HOME/.kube/config
+
+    - name: Deploy Infrastructure
+      run: |
+        kubectl apply -f argoCD-main/argocd/backend-app.yaml
+        kubectl apply -f argoCD-main/argocd/frontend-app.yaml
+        kubectl apply -f argoCD-main/argocd/git-ssh-repository.yaml 

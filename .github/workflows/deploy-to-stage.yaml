@@ -1,0 +1,27 @@
+name: Deploy to Kubernetes (Stage)
+
+on:
+  push:
+    branches:
+      - stage
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Kubernetes
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: echo "${KUBECONFIG}" > $HOME/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: kubectl apply -f k8s_practice/nginx-k8s/k8s/nginx-deployment.yaml 
